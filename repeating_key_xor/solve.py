@@ -31,7 +31,7 @@ from .operations import rank_single_byte_keys, transpose_ciphertext
 
 """ driver code """
 
-def main() -> None:
+def break_repeating_key_xor() -> None:
 
     DATA_DIR = Path(__file__).parent / "data"
     CIPHERTEXT_FILE = DATA_DIR / "ciphertext.txt"
@@ -46,7 +46,7 @@ def main() -> None:
 
     keysize_scores = normalize_distance(ciphertxt)
 
-    print("=== KEY SIZE CANDIDATES ===\n")
+    print("\n=== KEY SIZE CANDIDATES ===\n")
 
     for keysize, score in keysize_scores:
         print(f'{keysize=}, {score=}')
@@ -104,6 +104,3 @@ def main() -> None:
         key = bytes(key_bytes)
 
         print(f"\nRecovered key bytes: {key}")
-
-if __name__ == '__main__':
-    main()
