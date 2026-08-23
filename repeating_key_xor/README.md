@@ -92,6 +92,14 @@ C F I L
 
 Each resulting column was encrypted using the same single byte of the repeating key.
 
+The transposition is implemented by:
+
+```text
+transpose_ciphertext()
+```
+
+in `operations.py`.
+
 ---
 
 ### 3. Solve each column as single-byte XOR
@@ -155,8 +163,6 @@ repeating_key_xor/
 │
 ├── keysize.py
 │
-├── transpose.py
-│
 ├── data/
 │   └── ciphertext.txt
 │
@@ -172,8 +178,9 @@ Responsible for:
 1. Loading the ciphertext
 2. Finding probable key sizes
 3. Testing candidate key sizes
-4. Recovering the key bytes
-5. Displaying the results
+4. Transposing the ciphertext
+5. Recovering the key bytes
+6. Displaying the results
 
 ### `scoring.py`
 
@@ -186,15 +193,22 @@ COMMON_TRIGRAMS
 english_score()
 ```
 
+The `english_score()` function evaluates how closely a candidate plaintext resembles English text.
+
 ### `operations.py`
 
-Contains single-byte XOR functionality.
+Contains the XOR operations used during the attack.
 
 ```text
 rank_single_byte_keys()
+transpose_ciphertext()
 ```
 
-This brute-forces all `256` possible single-byte keys and ranks the resulting plaintexts.
+`rank_single_byte_keys()` brute-forces all `256` possible single-byte keys and ranks the resulting plaintexts using the English-language scoring function.
+
+`transpose_ciphertext()` reorganizes the ciphertext so that bytes encrypted with the same byte of the repeating key are grouped into the same column.
+
+This allows the repeating-key XOR problem to be reduced to multiple single-byte XOR problems.
 
 ### `keysize.py`
 
@@ -205,9 +219,9 @@ hamming_distance()
 normalize_distance()
 ```
 
-### `transpose.py`
+`hamming_distance()` calculates the bit-level difference between two byte sequences.
 
-Contains the ciphertext transposition logic used to turn the repeating-key XOR problem into multiple single-byte XOR problems.
+`normalize_distance()` evaluates candidate key sizes using normalized Hamming distance and ranks them from most to least promising.
 
 ---
 
@@ -229,7 +243,8 @@ Break1ng-Ciph3rs/
     ├── scoring.py
     ├── operations.py
     ├── keysize.py
-    └── transpose.py
+    └── data/
+        └── ciphertext.txt
 ```
 
 Run:
@@ -381,25 +396,6 @@ In particular, independently choosing the best byte for each column can occasion
 
 ---
 
-## Possible Improvements
-
-Some possible future improvements include:
-
-* Score the complete decrypted plaintext rather than individual columns
-* Try multiple candidate key bytes per column
-* Use a larger English corpus
-* Add word-frequency scoring
-* Add tetragram scoring
-* Improve key-size ranking
-* Support arbitrary ciphertext input
-* Add command-line arguments
-* Add unit tests
-* Add automatic plaintext/key detection
-
-These improvements are intentionally kept separate from the basic implementation so that the underlying attack remains easy to understand.
-
----
-
 ## References / Further Reading
 
 Useful topics to study alongside this implementation:
@@ -408,6 +404,5 @@ Useful topics to study alongside this implementation:
 * Hamming distance
 * Frequency analysis
 * Cryptanalysis of repeating-key XOR
-* Cryptopals Set 1, particularly the repeating-key XOR challenges
 
 The main lesson is that repeating-key XOR becomes significantly weaker once the key repeats: **the repetition allows the ciphertext to be separated into independent single-byte XOR streams.**
