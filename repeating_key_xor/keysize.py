@@ -13,16 +13,18 @@ def hamming_distance(blockA: bytes, blockB: bytes) -> int:
 def normalize_distance(ciphertxt: bytes) -> list[KeySizeScore]:
     scores = []
 
-    for keysize in range(2, 41): # assumed scenario..
+    # At least two complete blocks are required for Hamming-distance analysis.
+    max_keysize = len(ciphertxt) // 2
 
+    # Test key sizes from 2 through 40, limited by the ciphertext length.
+    # Assumes the key length is at most 40 bytes.
+    for keysize in range(2, min(41, max_keysize + 1)): 
+        # Only use complete blocks and limit the analysis to eight blocks.
         blocks = [
             ciphertxt[idx : idx + keysize]
             for idx in range(0, len(ciphertxt), keysize)
             if len(ciphertxt[idx : idx + keysize]) == keysize
         ][:8]
-
-        if len(blocks) < 2:
-            continue
 
         distances = [
             hamming_distance(blockA, blockB) / keysize
