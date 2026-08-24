@@ -55,8 +55,7 @@ For each possible key size from `2` through `40`, the ciphertext is divided into
 The Hamming distance between blocks is calculated and normalized by the key size.
 
 ```text
-normalized distance =
-    Hamming distance / key size
+normalized distance = Hamming distance / key size
 ```
 
 The average distance across several blocks is used as the score.
@@ -167,84 +166,6 @@ repeating_key_xor/
 │   └── ciphertext.txt
 │
 └── README.md
-```
-
-### `solve.py`
-
-Main driver for the attack.
-
-Responsible for:
-
-1. Loading the ciphertext
-2. Finding probable key sizes
-3. Testing candidate key sizes
-4. Transposing the ciphertext
-5. Recovering the key bytes
-6. Displaying the results
-
-### `scoring.py`
-
-Contains the English-language scoring system.
-
-```text
-LETTER_FREQUENCY
-COMMON_BIGRAMS
-COMMON_TRIGRAMS
-english_score()
-```
-
-The `english_score()` function evaluates how closely a candidate plaintext resembles English text.
-
-### `operations.py`
-
-Contains the XOR operations used during the attack.
-
-```text
-rank_single_byte_keys()
-transpose_ciphertext()
-```
-
-`rank_single_byte_keys()` brute-forces all `256` possible single-byte keys and ranks the resulting plaintexts using the English-language scoring function.
-
-`transpose_ciphertext()` reorganizes the ciphertext so that bytes encrypted with the same byte of the repeating key are grouped into the same column.
-
-This allows the repeating-key XOR problem to be reduced to multiple single-byte XOR problems.
-
-### `keysize.py`
-
-Contains key-size analysis.
-
-```text
-hamming_distance()
-normalize_distance()
-```
-
-`hamming_distance()` calculates the bit-level difference between two byte sequences.
-
-`normalize_distance()` evaluates candidate key sizes using normalized Hamming distance and ranks them from most to least promising.
-
----
-
-## Running the Solver
-
-Because the project uses Python package-relative imports, run the solver as a module from the directory containing `repeating_key_xor`.
-
-```bash
-python -m repeating_key_xor.solve
-```
-
-For example:
-
-```text
-Break1ng-Ciph3rs/
-└── repeating_key_xor/
-    ├── __init__.py
-    ├── solve.py
-    ├── scoring.py
-    ├── operations.py
-    ├── keysize.py
-    └── data/
-        └── ciphertext.txt
 ```
 
 Run:
