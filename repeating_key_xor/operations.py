@@ -2,11 +2,16 @@ from .scoring import english_score
 
 """ Single-byte XOR operations. """
 
-def rank_single_byte_keys(ciphertxt: bytes, top_n: int = 5) -> list[tuple[int, float, str]]:
+type SingleByteCandidate = tuple[int, float, str]
+
+def rank_single_byte_keys(ciphertxt: bytes, top_n: int = 5) -> list[SingleByteCandidate]:
     candidates = []
 
     for key in range(256):
-        plaintxt = bytes(c ^ key for c in ciphertxt)
+        plaintxt = bytes(
+            c ^ key 
+            for c in ciphertxt
+        )
 
         text = plaintxt.decode('latin-1')
 
@@ -16,13 +21,11 @@ def rank_single_byte_keys(ciphertxt: bytes, top_n: int = 5) -> list[tuple[int, f
             (key, score, text)
         )
 
-    # highest score, would be most likely english
-    candidates.sort(
+    return sorted(
+        candidates,
         key=lambda candidate: candidate[1],
         reverse=True
-    )
-
-    return candidates[:top_n]
+    )[:top_n]
 
 """ Transpose ciphertext into blocks for repeating-key XOR analysis. """
 

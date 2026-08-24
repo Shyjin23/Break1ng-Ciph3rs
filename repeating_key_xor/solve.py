@@ -1,6 +1,6 @@
 """
 ############################
-# Break repeating-key XOR. #
+| Break repeating-key XOR. | 
 ############################
 
 Attack flow:
@@ -23,7 +23,9 @@ Attack flow:
         each column and reconstruct the repeating key.
 """
 
+import click
 import base64
+
 from pathlib import Path
 
 from .keysize import normalize_distance
@@ -31,13 +33,26 @@ from .operations import rank_single_byte_keys, transpose_ciphertext
 
 """ driver code """
 
-def break_repeating_key_xor() -> None:
+DEFAULT_CIPHERTEXT = (
+    Path(__file__).resolve().parent / "data" / "ciphertext.txt"
+)
 
-    DATA_DIR = Path(__file__).parent / "data"
-    CIPHERTEXT_FILE = DATA_DIR / "ciphertext.txt"
-
+@click.command()
+@click.option(
+    "-ciphertext",
+    "-c",
+    type=click.Path(
+        exists=True,
+        path_type=Path
+    ),
+    default=DEFAULT_CIPHERTEXT,
+    help="Path to the ciphertext file.",
+)
+def break_repeating_key_xor(ciphertext: Path) -> None:
+    # The ciphertext is expected to be Base64-encoded.
+    # If the ciphertext is provided in another format, update the decoding logic below accordingly before processing it further.
     ciphertxt = base64.b64decode(
-        CIPHERTEXT_FILE
+        ciphertext 
         .read_text()
         .strip()
     )
@@ -76,9 +91,7 @@ def break_repeating_key_xor() -> None:
 
         key_bytes = []
 
-        for column_no, cipher in enumerate(
-            single_key_xor_cipher_bytes
-        ):
+        for column_no, cipher in enumerate(single_key_xor_cipher_bytes):
 
             candidates = rank_single_byte_keys(cipher)
 
