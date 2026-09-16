@@ -1,95 +1,90 @@
 # Break1ng-Ciph3rs
 
-A modular cryptanalysis toolkit for CTFs and experimentation. Each module
-focuses on one cipher or attack technique, so you can explore a topic from its
-data and implementation through to the explanation of why it works.
+A modular collection of cryptanalysis exercises for learning, experimentation, and CTF practice.
 
-## Explore the modules
+The project brings together implementations of classical ciphers, cryptanalytic techniques, and practical attacks in small, focused modules. Each module is designed to be studied and used independently, with its own implementation, supporting data, tests, and documentation.
 
-| Module | What you will learn |
-| --- | --- |
-| [Repeating-Key XOR](README.md#repeating-key-xor) | How key reuse lets a repeating XOR cipher be broken with Hamming distance, transposition, and frequency analysis. |
+## What This Project Covers?
 
-## Getting started
+Break1ng-Ciph3rs focuses on understanding **how cryptographic systems can be analyzed and broken when their design or usage introduces weaknesses**.
 
-Install the project and its development dependencies from the repository root:
+Topics include:
+
+* Repeating-key XOR
+* Other classical ciphers and cryptanalysis techniques (soon)
+
+New topics are added as self-contained attack modules rather than being forced into a common framework.
+
+## Getting Started 
+
+Install the project and development dependencies from the repository root:
 
 ```powershell
 python -m pip install --editable ".[dev]"
 ```
 
-Modules are exposed as `cryptx` subcommands:
+The project provides a `cryptx` command-line interface:
 
 ```powershell
-cryptx repeating-xor --help
+cryptx --help
 ```
 
-## A module-first project
+Individual attacks are exposed as subcommands. For example:
 
-Every module is intentionally self-contained:
+```powershell
+cryptx repeating-key-xor --help
+```
+
+## Project Structure
 
 ```text
-module-name/
-├── README.md     # Concept, attack flow, assumptions, and usage
-├── source files  # The implementation for that one topic
-├── data/         # Input used by the exercise
-└── tests/        # Behaviour verified for that module
+src/
+└── cryptx/
+    ├── cli/
+    │   └── commands/            # CLI commands for individual attacks
+    │
+    └── attacks/
+        ├── repeating_key_xor/   # Repeating-key XOR attack
+        │   ├── attack.py
+        │   ├── keysize.py
+        │   ├── operations.py
+        │   ├── scoring.py
+        │   └── data/
+        │
+        └── ...                  # Future attacks
+
+tests/
+└── attacks/                     # Tests for individual attack modules
 ```
 
-This keeps each topic easy to study on its own. As the project grows, new modules can sit alongside the existing ones.
+The code is intentionally organized around the attack being studied. Shared abstractions are introduced only when multiple modules genuinely need the same functionality.
 
-## Scope
+## Module-First Approach
 
-These examples are for learning cryptography and cryptanalysis. They explain why legacy or incorrectly used encryption schemes fail; they are not a guide to securing production data.
+Each attack is intended to remain understandable on its own. This keeps the implementation close to the concept being studied while allowing the project to grow naturally as more attacks are added.
 
-## Project layout
-
-```text
-src/cryptx/
-├── cli/                         # The `cryptx` command and subcommands
-│   └── commands/repeating_xor.py
-└── attacks/
-    └── repeating_xor/           # Self-contained attack implementation
-        ├── solver.py
-        ├── keysize.py
-        ├── operations.py
-        ├── scoring.py
-        └── data/ciphertext.txt
-
-tests/                           # CLI and attack behaviour tests
-```
-
-Future attacks such as AES-ECB and single-byte XOR will be added as sibling
-packages under `cryptx.attacks` and registered as CLI commands. Shared code is
-intentionally not extracted until multiple attacks genuinely need it.
-
-## Repeating-key XOR
-
-Repeating-key XOR encrypts bytes with a short key that repeats. CryptX finds
-likely key sizes by comparing normalized Hamming distances between ciphertext
-blocks. For each likely size, it transposes the ciphertext so every column was
-encrypted by one key byte, then ranks all 256 single-byte XOR possibilities by
-how English-like they appear. The resulting key candidates are printed.
-
-Run the bundled Base64 ciphertext:
-
-```powershell
-cryptx repeating-xor
-```
-
-Or provide your own readable Base64 ciphertext file:
-
-```powershell
-cryptx repeating-xor --file cipher.txt
-```
-
-The bundled ciphertext is loaded from the installed package, rather than the
-current working directory.
+More detailed documentation for the attack is provided in its module README.
 
 ## Tests
 
-Run the focused test suite with:
+The project uses `pytest` for automated testing.
+
+Run the complete test suite from the repository root:
 
 ```powershell
 pytest
 ```
+
+For verbose output:
+
+```powershell
+pytest -v
+```
+
+Tests cover cryptanalysis behaviour, input validation, and the public CLI.
+
+## Purpose
+
+This is primarily a **learning and experimentation project**. The implementations favour clarity and inspectability so that the underlying cryptanalytic techniques can be understood rather than hidden behind large abstractions.
+
+The techniques demonstrated here are intended for educational use, CTFs, and authorized experimentation.

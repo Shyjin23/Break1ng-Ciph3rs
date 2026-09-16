@@ -1,14 +1,14 @@
 # Repeating-Key XOR Cryptanalysis
 
-A small Python implementation for breaking **repeating-key XOR** ciphertext.
+An educational implementation for analyzing and breaking **repeating-key XOR** ciphertext.
 
-The goal of this project is to demonstrate how a repeating-key XOR cipher can be reduced to a collection of **single-byte XOR** problems by first identifying the likely key size and then transposing the ciphertext.
+This module demonstrates how repeating-key XOR can be reduced to multiple **single-byte XOR** problems by identifying probable key sizes, transposing the ciphertext, and scoring possible key bytes using English-language characteristics.
 
 ---
 
 ## Overview
 
-Repeating-key XOR works by XORing each byte of the plaintext with a repeating key:
+Repeating-key XOR encrypts each plaintext byte by XORing it with a byte from a repeating key:
 
 ```text
 Plaintext:   H E L L O W O R L D
@@ -17,18 +17,16 @@ Key:         K E Y K E Y K E Y K
 Ciphertext:  P ? ? ? ? ? ? ? ? ?
 ```
 
-The same key bytes are reused periodically throughout the ciphertext.
+Because the key repeats, bytes at the same position within each key-sized block are encrypted with the same key byte.
 
-This creates a weakness: if the key size is known, every `n`th byte of the ciphertext was XORed with the same key byte.
-
-For example, with a key size of `3`:
+For a key size of `3`:
 
 ```text
 Ciphertext:
 
 C0 C1 C2 C3 C4 C5 C6 C7 C8
 │  │  │  │  │  │  │  │  │
-│  │  │  └──┼──┼──└──┼──┼── ...
+│  │  │  └──┼──┼──└──┼──┼──
 │  │  │     │  │     │  │
 ▼  ▼  ▼
 C0 C3 C6    C1 C4 C7    C2 C5 C8
@@ -40,37 +38,51 @@ C0 C3 C6    C1 C4 C7    C2 C5 C8
     XOR            XOR            XOR
 ```
 
-Each column can therefore be attacked independently as a single-byte XOR cipher.
+Each column contains bytes encrypted with the same key byte, allowing each column to be analyzed as an independent single-byte XOR cipher.
 
 ---
 
 ## Attack Strategy
 
-The solver follows four main steps.
+The attack consists of four main stages:
 
-### 1. Determine probable key sizes
+```text
+Repeating-key XOR ciphertext
+            │
+            ▼
+     Find probable key sizes
+            │
+            ▼
+    Transpose the ciphertext
+            │
+            ▼
+  Solve single-byte XOR columns
+            │
+            ▼
+     Reconstruct the key
+```
 
-For each possible key size from `2` through `40`, the ciphertext is divided into blocks of that size.
+### 1. Find probable key sizes
 
-The Hamming distance between blocks is calculated and normalized by the key size.
+The implementation tests key sizes from `2` through `40`.
+
+For each candidate size, the ciphertext is divided into complete blocks of that size. Pairwise Hamming distances between the blocks are calculated and normalized by the candidate key size:
 
 ```text
 normalized distance = Hamming distance / key size
 ```
 
-The average distance across several blocks is used as the score.
+The average normalized distance is used as the key-size score.
 
-A smaller normalized Hamming distance suggests that the blocks have more similarity than would be expected from random data, making that key size more likely.
+Lower scores indicate greater similarity between the blocks and make a key size a candidate for further analysis. This is a heuristic signal rather than proof that the key size is correct.
 
-The implementation considers the first eight complete blocks for each candidate key size.
+The implementation uses up to the first eight complete blocks for each candidate key size and analyzes the top five candidates in the following stages.
 
 ---
 
 ### 2. Transpose the ciphertext
 
-Once probable key sizes have been identified, the ciphertext is split into blocks of the candidate key size.
-
-The blocks are then transposed so that bytes encrypted with the same key byte are grouped together.
+For each candidate key size, the ciphertext is divided into blocks of that size and then transposed.
 
 For example:
 
@@ -89,7 +101,7 @@ B E H K
 C F I L
 ```
 
-Each resulting column was encrypted using the same single byte of the repeating key.
+Each resulting column contains ciphertext bytes encrypted with the same key byte.
 
 The transposition is implemented by:
 
@@ -103,47 +115,47 @@ in `operations.py`.
 
 ### 3. Solve each column as single-byte XOR
 
-For every transposed column, all `256` possible byte values are tested.
+Each transposed column is tested against all `256` possible byte values.
 
-For each candidate key:
+For every candidate key byte:
 
 ```text
 plaintext = ciphertext XOR key
 ```
 
-The resulting plaintext is scored according to how closely it resembles English.
+The resulting plaintext is scored using a simple English-language scoring function.
 
-The solver uses:
+The scoring function considers:
 
 * English character frequencies
-* common bigrams
-* common trigrams
-* whitespace
-* punctuation
-* printable characters
-* non-printable characters
+* Common bigrams
+* Common trigrams
+* Whitespace
+* Punctuation
+* Printable characters
+* Non-printable characters
 
-The highest-scoring candidates are displayed.
+The highest-scoring candidates are retained for each column.
 
 ---
 
 ### 4. Reconstruct the repeating key
 
-The highest-scoring single-byte key from each column is selected.
+The highest-scoring key byte from each column is selected and combined to form the repeating key.
 
 For example:
 
 ```text
-Column 0 → key byte 0x49
-Column 1 → key byte 0x43
-Column 2 → key byte 0x45
+Column 0 → 0x49
+Column 1 → 0x43
+Column 2 → 0x45
 
 Recovered key:
 
 b'ICE'
 ```
 
-The individual bytes are then combined to reconstruct the repeating XOR key.
+The resulting key is then available as part of the attack results.
 
 ---
 
@@ -153,14 +165,10 @@ The individual bytes are then combined to reconstruct the repeating XOR key.
 repeating_key_xor/
 │
 ├── __init__.py
-│
-├── solve.py
-│
-├── scoring.py
-│
-├── operations.py
-│
+├── attack.py
 ├── keysize.py
+├── operations.py
+├── scoring.py
 │
 ├── data/
 │   └── ciphertext.txt
@@ -168,26 +176,31 @@ repeating_key_xor/
 └── README.md
 ```
 
-Run:
+The attack is exposed through the main `cryptx` command-line interface.
+
+Display the command help:
 
 ```bash
-cd Break1ng-Ciph3rs
-python -m repeating_key_xor.solve
+cryptx repeating-key-xor --help
 ```
 
-Do **not** run:
+Analyze the bundled ciphertext:
 
 ```bash
-python -m .\repeating_key_xor\solve.py
+cryptx repeating-key-xor
 ```
 
-The `-m` option expects a Python module name rather than a filesystem path.
+Analyze a custom Base64-encoded ciphertext file:
+
+```bash
+cryptx repeating-key-xor --file cipher.txt
+```
 
 ---
 
 ## Example Output
 
-The first stage prints the candidate key sizes:
+The attack first displays the calculated key-size candidates:
 
 ```text
 === KEY SIZE CANDIDATES ===
@@ -198,7 +211,7 @@ keysize=9, score=2.XXX
 ...
 ```
 
-The solver then tests the most promising candidates:
+The most promising candidates are then analyzed column by column:
 
 ```text
 ====================
@@ -226,50 +239,13 @@ plaintext='...'
 Recovered key bytes: b'...'
 ```
 
----
-
-## Concepts Used
-
-This challenge brings together several useful cryptanalysis techniques:
-
-* XOR properties
-* Repeating-key XOR
-* Single-byte XOR brute force
-* Hamming distance
-* Normalized Hamming distance
-* Frequency analysis
-* Bigram/trigram analysis
-* Ciphertext transposition
-* Known language characteristics
-
-The important observation is that **repeating-key XOR is not fundamentally a single problem**.
-
-Once the key size is known:
-
-```text
-Repeating-key XOR
-        │
-        ▼
-Determine key size
-        │
-        ▼
-Transpose ciphertext
-        │
-        ▼
-Multiple single-byte XOR problems
-        │
-        ▼
-English scoring
-        │
-        ▼
-Recover key
-```
+The attack retains multiple single-byte candidates for each column, allowing the analysis results to expose more than just the selected key byte.
 
 ---
 
 ## Why Hamming Distance?
 
-The Hamming distance measures how many bits differ between two byte sequences.
+Hamming distance measures how many bits differ between two byte sequences.
 
 For example:
 
@@ -280,21 +256,41 @@ B = 01000100
 A XOR B = 00000101
 ```
 
-The result contains two `1` bits, therefore:
+The XOR result contains two `1` bits:
 
 ```text
 Hamming distance = 2
 ```
 
-For repeating-key XOR, blocks encrypted with the same repeating key pattern can exhibit statistical similarities.
+For repeating-key XOR, ciphertext blocks aligned with the repeating key can exhibit statistical similarities.
 
-Normalizing the distance by the candidate key size allows key sizes of different lengths to be compared:
+Dividing the distance by the candidate key size produces a normalized value:
 
 ```text
 distance / key_size
 ```
 
-The lowest-scoring candidates are investigated first.
+This makes scores from different key sizes easier to compare.
+
+A lower normalized distance makes a key size more interesting to investigate, but it does not guarantee that the key size is correct. Other statistical properties of the ciphertext can also produce low scores.
+
+---
+
+## Concepts Used
+
+This module brings together several useful cryptanalysis concepts:
+
+* XOR and its properties
+* Repeating-key XOR
+* Single-byte XOR brute force
+* Hamming distance
+* Normalized Hamming distance
+* Frequency analysis
+* Bigram and trigram analysis
+* Ciphertext transposition
+* English-language scoring
+
+The central idea is that repeating-key XOR can be separated into independent single-byte XOR streams once a probable key size has been identified.
 
 ---
 
@@ -302,18 +298,21 @@ The lowest-scoring candidates are investigated first.
 
 This implementation is intentionally simple and educational.
 
-The current solver:
+The current attack:
 
 * Tests key sizes from `2` to `40`
-* Uses the first eight complete blocks
+* Uses up to the first eight complete blocks
 * Uses pairwise Hamming distances
-* Brute-forces all `256` single-byte keys
+* Analyzes the top five key-size candidates
+* Brute-forces all `256` possible single-byte keys for each column
 * Uses a simple English-language scoring function
 * Selects the highest-scoring key byte independently for each column
 
 The scoring system is heuristic, so the highest-scoring candidate is not guaranteed to be correct.
 
-In particular, independently choosing the best byte for each column can occasionally produce a key that looks plausible but does not produce the best overall plaintext.
+In particular, independently selecting the best byte for each column can produce a plausible-looking key without producing the best overall plaintext.
+
+The approach also assumes that the plaintext has characteristics similar to English text. Ciphertexts containing binary data, compressed data, or other non-English content may not score reliably.
 
 ---
 
@@ -324,6 +323,7 @@ Useful topics to study alongside this implementation:
 * XOR and its algebraic properties
 * Hamming distance
 * Frequency analysis
-* Cryptanalysis of repeating-key XOR
+* Single-byte XOR cryptanalysis
+* Repeating-key XOR cryptanalysis
 
-The main lesson is that repeating-key XOR becomes significantly weaker once the key repeats: **the repetition allows the ciphertext to be separated into independent single-byte XOR streams.**
+The main lesson is that **reusing the XOR key introduces structure into the ciphertext**. Once that structure is identified, the repeating-key XOR problem can be separated into smaller single-byte XOR problems that can be analyzed independently.
