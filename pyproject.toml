@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cryptx"
+version = "0.1.0"
+description = "A modular cryptanalysis toolkit for CTFs and experimentation."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [{ name = "Shyjin S. Antony" }]
+dependencies = ["click>=8.1"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+cryptx = "cryptx.cli.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cryptx*"]
+
+[tool.setuptools.package-data]
+"cryptx.attacks.repeating_xor" = ["data/*.txt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

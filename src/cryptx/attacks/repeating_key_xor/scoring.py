@@ -1,6 +1,7 @@
+"""English-language scoring for candidate plaintext."""
+
 import string
 
-""" English language scoring """
 
 LETTER_FREQUENCY = {
     'a': 8.17,
@@ -51,9 +52,10 @@ COMMON_TRIGRAMS = {
     "hes", "ver", "his", "oft",
 }
 
-""" Score how much a plaintext looks like English """
 
 def english_score(text: str) -> float:
+    """Return a higher score for text that resembles English."""
+    
     txt = text.lower()
 
     score = 0.0
