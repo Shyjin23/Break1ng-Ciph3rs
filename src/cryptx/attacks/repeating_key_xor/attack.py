@@ -33,9 +33,7 @@ class RepeatingXORAnalysis:
     results: list[RepeatingXORResult]
 
 
-def break_repeating_key_xor(
-        ciphertext: Path
-    ) -> RepeatingXORAnalysis:
+def break_repeating_key_xor(ciphertext: Path) -> RepeatingXORAnalysis:
     """Analyze a repeating-key XOR ciphertext and return candidate keys."""
 
     # the input ciphertext is expected to be base64-encoded.

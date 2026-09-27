@@ -26,9 +26,7 @@ from cryptx.attacks.repeating_key_xor.attack import (
     default=None,
     help="Base64-encoded ciphertext file. Uses the bundled sample by default.",
 )
-def repeating_key_xor(
-        ciphertext_file: Path | None
-    ) -> None:
+def repeating_key_xor(ciphertext_file: Path | None) -> None:
     """Find likely keys for a repeating-key XOR ciphertext."""
 
     try:

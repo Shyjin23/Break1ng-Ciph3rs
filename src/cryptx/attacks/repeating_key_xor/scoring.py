@@ -52,9 +52,7 @@ COMMON_TRIGRAMS = {
 }
 
 
-def english_score(
-        text: str
-    ) -> float:
+def english_score(text: str) -> float:
     """Return a higher score for text that resembles English."""
     
     txt = text.lower()

@@ -10,10 +10,7 @@ MAX_KEYSIZE = 40
 type KeySizeScore = tuple[int, float]
 
 
-def hamming_distance(
-        block_a: bytes, 
-        block_b: bytes
-    ) -> int:
+def hamming_distance(block_a: bytes, block_b: bytes) -> int:
     """Return the number of differing bits in two equal-length blocks."""
     
     if len(block_a) != len(block_b):
@@ -25,9 +22,7 @@ def hamming_distance(
     )
 
 
-def normalize_distance(
-        ciphertext: bytes
-    ) -> list[KeySizeScore]:
+def normalize_distance(ciphertext: bytes) -> list[KeySizeScore]:
     """Rank candidate key sizes by normalized block Hamming distance."""
    
     scores: list[KeySizeScore] = []
