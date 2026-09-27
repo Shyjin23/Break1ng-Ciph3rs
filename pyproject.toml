@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=69"]
+requires = ["setuptools>=75"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,11 +9,19 @@ description = "A modular cryptanalysis toolkit for CTFs and experimentation."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
-authors = [{ name = "Shyjin S. Antony" }]
-dependencies = ["click>=8.1"]
+authors = [
+    { name = "Shyjin S. Antony" },
+]
+dependencies = [
+    "click>=8.1,<9",
+]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = [
+    "pytest>=8.3,<9",
+    "pytest-cov>=5,<7",
+    "ruff>=0.8,<1",
+]
 
 [project.scripts]
 cryptx = "cryptx.cli.main:cli"
@@ -27,4 +35,19 @@ include = ["cryptx*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = ["-ra", "--strict-config", "--strict-markers"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.coverage.run]
+branch = true
+source = ["cryptx"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
