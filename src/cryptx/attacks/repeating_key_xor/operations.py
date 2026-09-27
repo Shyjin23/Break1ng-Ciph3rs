@@ -2,11 +2,13 @@
 
 from .scoring import english_score
 
-
 type SingleByteCandidate = tuple[int, float, str]
 
 
-def rank_single_byte_keys(ciphertext: bytes, top_n: int = 5) -> list[SingleByteCandidate]:
+def rank_single_byte_keys(
+        ciphertext: bytes, 
+        top_n: int = 5
+    ) -> list[SingleByteCandidate]:
     """Rank possible single-byte XOR keys by English-language score."""
     
     if top_n < 1:
@@ -34,7 +36,10 @@ def rank_single_byte_keys(ciphertext: bytes, top_n: int = 5) -> list[SingleByteC
     )[:top_n]
 
 
-def transpose_ciphertext(ciphertext: bytes, keysize: int) -> list[bytes]:
+def transpose_ciphertext(
+        ciphertext: bytes, 
+        keysize: int
+    ) -> list[bytes]:
     """Transpose ciphertext into columns for repeating-key XOR analysis."""
 
     if keysize < 1:

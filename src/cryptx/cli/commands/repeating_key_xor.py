@@ -1,9 +1,9 @@
 """CLI command for the repeating-key XOR attack."""
 
-import click
 import binascii
-
 from pathlib import Path
+
+import click
 
 from cryptx.attacks.repeating_key_xor.attack import (
     DEFAULT_CIPHERTEXT,
@@ -26,7 +26,9 @@ from cryptx.attacks.repeating_key_xor.attack import (
     default=None,
     help="Base64-encoded ciphertext file. Uses the bundled sample by default.",
 )
-def repeating_key_xor(ciphertext_file: Path | None) -> None:
+def repeating_key_xor(
+        ciphertext_file: Path | None
+    ) -> None:
     """Find likely keys for a repeating-key XOR ciphertext."""
 
     try:

@@ -1,13 +1,11 @@
 """Solve repeating-key XOR ciphertext."""
 
 import base64
-
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 
 from .keysize import KeySizeScore, normalize_distance
 from .operations import SingleByteCandidate, rank_single_byte_keys, transpose_ciphertext
-
 
 TOP_KEYSIZE_CANDIDATES = 5
 
@@ -15,14 +13,6 @@ TOP_KEYSIZE_CANDIDATES = 5
 DEFAULT_CIPHERTEXT = (
     Path(__file__).resolve().parent / "data" / "ciphertext.txt"
 )
-
-
-@dataclass
-class RepeatingXORAnalysis:
-    """Complete analysis results for a repeating-key XOR ciphertext."""
-    
-    keysize_scores: list[KeySizeScore]
-    results: list[RepeatingXORResult]
 
 
 @dataclass
@@ -35,7 +25,17 @@ class RepeatingXORResult:
     key: bytes
 
 
-def break_repeating_key_xor(ciphertext: Path) -> RepeatingXORAnalysis:
+@dataclass
+class RepeatingXORAnalysis:
+    """Complete analysis results for a repeating-key XOR ciphertext."""
+    
+    keysize_scores: list[KeySizeScore]
+    results: list[RepeatingXORResult]
+
+
+def break_repeating_key_xor(
+        ciphertext: Path
+    ) -> RepeatingXORAnalysis:
     """Analyze a repeating-key XOR ciphertext and return candidate keys."""
 
     # the input ciphertext is expected to be base64-encoded.
