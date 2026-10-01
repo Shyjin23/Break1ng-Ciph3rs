@@ -88,3 +88,7 @@ Tests cover cryptanalysis behaviour, input validation, and the public CLI.
 This is primarily a **learning and experimentation project**. The implementations favour clarity and inspectability so that the underlying cryptanalytic techniques can be understood rather than hidden behind large abstractions.
 
 The techniques demonstrated here are intended for educational use, CTFs, and authorized experimentation.
+
+## License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
