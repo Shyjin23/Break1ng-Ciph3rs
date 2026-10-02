@@ -318,12 +318,12 @@ The approach also assumes that the plaintext has characteristics similar to Engl
 
 ## References / Further Reading
 
-Useful topics to study alongside this implementation:
+The following resources provide useful background on the concepts used in this implementation:
 
-* XOR and its algebraic properties
-* Hamming distance
-* Frequency analysis
-* Single-byte XOR cryptanalysis
-* Repeating-key XOR cryptanalysis
+* Frequency analysis - https://en.wikipedia.org/wiki/Frequency_analysis 
+* Hamming distance - https://en.wikipedia.org/wiki/Hamming_distance
+* Letter frequency - https://en.wikipedia.org/wiki/Letter_frequency
+* Bigram - https://en.wikipedia.org/wiki/Bigram
+* Trigram - https://en.wikipedia.org/wiki/Trigram
 
 The main lesson is that **reusing the XOR key introduces structure into the ciphertext**. Once that structure is identified, the repeating-key XOR problem can be separated into smaller single-byte XOR problems that can be analyzed independently.
